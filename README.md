@@ -1,5 +1,9 @@
 # line-col
 
+[![Crates.io version shield](https://img.shields.io/crates/v/line-col)](https://crates.io/crates/line-col)
+[![Docs.rs shield](https://docs.rs/line-col/badge.svg)](https://docs.rs/line-col)
+[![Crates.io license shield](https://img.shields.io/crates/l/line-col)](https://github.com/TheBerkin/line-col-rs/blob/master/LICENSE)
+
 A simple crate for calculating 1-based line/col numbers for a string slice.
 
 ## Example
@@ -26,3 +30,14 @@ The default behavior is to count the number of code points from the start of the
 However, this does not account for grapheme clusters (e.g. complex accented characters, emoji, etc.)
 If you would like to calculate the column based on the number of grapheme clusters instead, enable
 the `grapheme-clusters` feature.
+
+## Changelog
+
+### 0.1.1
+
+* Fixed documentation typos
+* Use extended grapheme clustering
+
+### 0.1.0
+
+Initial version

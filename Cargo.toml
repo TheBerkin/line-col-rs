@@ -1,8 +1,8 @@
 [package]
 name = "line-col"
-description = "Get local line/column information by indexing a string slice"
+description = "Convert string slice indices into line/column numbers"
 repository = "https://github.com/TheBerkin/line-col-rs"
-version = "0.1.0"
+version = "0.1.1"
 readme = "README.md"
 keywords = ["str", "line", "column", "parsing", "lookup"]
 categories = ["algorithms", "caching"]

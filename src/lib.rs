@@ -76,7 +76,7 @@ impl<'source> LineColLookup<'source> {
         let line = line_range.start + 1; 
 
         #[cfg(feature = "grapheme-clusters")]
-        let col = UnicodeSegmentation::graphemes(&self.src[line_start_index..index], false).count() + 1;
+        let col = UnicodeSegmentation::graphemes(&self.src[line_start_index..index], true).count() + 1;
 
         #[cfg(not(feature = "grapheme-clusters"))]
         let col = index - line_start_index + 1;
