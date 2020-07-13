@@ -120,4 +120,13 @@ mod tests {
         assert_eq!(lookup.get(4), (1, 5));
         assert_eq!(lookup.get(22), (1, 6));
     }
+
+    #[test]
+    #[cfg(not(feature = "grapheme-clusters"))]
+    fn emoji_text_by_codepoints() {
+        let text = "The 👨‍👩‍👦 emoji is made of 5 code points and 18 bytes in UTF-8.";
+        let lookup = LineColLookup::new(text);
+        assert_eq!(lookup.get(4), (1, 5));
+        assert_eq!(lookup.get(22), (1, 23));
+    }
 }
