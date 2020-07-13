@@ -1,0 +1,15 @@
+[package]
+name = "line-col"
+description = "Get local line/column information by indexing a string slice"
+version = "0.1.0"
+authors = ["Nicholas Fleck <TheBerkin@users.noreply.github.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+grapheme-clusters = ["unicode-segmentation"]
+default = []
+
+[dependencies]
+unicode-segmentation = { version = "1.6.0", optional = true }
