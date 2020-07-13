@@ -11,7 +11,7 @@ pub struct LineColLookup<'source> {
 impl<'source> LineColLookup<'source> {
     /// Creates a new line/col lookup table. The `src` parameter provides the input string used to calculate lines and columns.
     ///
-    /// Internally, this scans `src` and caches the starting positions of all lines. This means this an O(n) operation.
+    /// Internally, this scans `src` and caches the starting positions of all lines. This means this is an O(n) operation.
     pub fn new(src: &'source str) -> Self {
         let line_heads: Vec<usize> = std::iter::once(0)
             .chain(src
