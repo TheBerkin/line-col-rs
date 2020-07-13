@@ -1,6 +1,7 @@
 #[cfg(feature = "grapheme-clusters")]
 use unicode_segmentation::UnicodeSegmentation;
 
+/// Represents a pre-cached line/column lookup table for a given string slice.
 pub struct LineColLookup<'source> {
     src: &'source str,
     line_heads: Vec<usize>,
@@ -22,10 +23,31 @@ impl<'source> LineColLookup<'source> {
         }
     }
 
-    /// Gets the 1-based line and column numbers of the specified char index.
+    /// Looks up the 1-based line and column numbers of the specified char index.
     ///
     /// Returns a tuple with the line number first, then column number. 
+    ///
+    /// # Example
+    /// ```rust
+    /// use line_col::*;
+    /// let text = "One\nTwo";
+    /// let lookup = LineColLookup::new(text);
+    /// assert_eq!(lookup.get(0), (1, 1)); // 'O' (line 1, col 1)
+    /// assert_eq!(lookup.get(1), (1, 2)); // 'n' (line 1, col 2)
+    /// assert_eq!(lookup.get(2), (1, 3)); // 'e' (line 1, col 3)
+    /// assert_eq!(lookup.get(4), (2, 1)); // 'T' (line 2, col 1)
+    /// assert_eq!(lookup.get(5), (2, 2)); // 'w' (line 2, col 2)
+    /// assert_eq!(lookup.get(6), (2, 3)); // 'o' (line 2, col 3)
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// Panics if `index` is greater than the length of the input `&str`.
     pub fn get(&self, index: usize) -> (usize, usize) {
+        if index > self.src.len() {
+            panic!("Index cannot be greater than the length of the input slice.");
+        }
+
         // Perform a binary search to locate the line on which `index` resides
         let mut line_range = 0 .. self.line_count;
         while line_range.end - line_range.start > 1 {
@@ -38,7 +60,7 @@ impl<'source> LineColLookup<'source> {
                 line_range = right;
             }
         }
-        
+
         let line_start_index = self.line_heads[line_range.start];
         let line = line_range.start + 1; 
 
@@ -75,5 +97,6 @@ mod tests {
         assert_eq!(lookup.get(5), (3, 1));
         assert_eq!(lookup.get(6), (3, 2));
         assert_eq!(lookup.get(7), (3, 3));
+        assert_eq!(lookup.get(8), (3, 4));
     }
 }

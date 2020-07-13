@@ -1,8 +1,13 @@
 [package]
 name = "line-col"
 description = "Get local line/column information by indexing a string slice"
+repository = "https://github.com/TheBerkin/line-col-rs"
 version = "0.1.0"
+readme = "README.md"
+keywords = ["str", "line", "column", "parsing", "lookup"]
+categories = ["algorithms", "caching"]
 authors = ["Nicholas Fleck <TheBerkin@users.noreply.github.com>"]
+license = "MIT"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
