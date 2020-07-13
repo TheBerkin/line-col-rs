@@ -76,7 +76,7 @@ impl<'source> LineColLookup<'source> {
         let line = line_range.start + 1; 
 
         #[cfg(feature = "grapheme-clusters")]
-        let col = index - UnicodeSegmentation::grapheme_indices(&self.src[line_start_index..index], true).count() + 1;
+        let col = UnicodeSegmentation::graphemes(&self.src[line_start_index..index], false).count() + 1;
 
         #[cfg(not(feature = "grapheme-clusters"))]
         let col = index - line_start_index + 1;
@@ -97,7 +97,8 @@ mod tests {
     }
 
     #[test]
-    fn line_col_iter() {
+    #[cfg(not(feature = "grapheme-clusters"))]
+    fn line_col_iter_by_codepoints() {
         let text = "a\nab\nabc";
         let lookup = LineColLookup::new(text);
         assert_eq!(lookup.get(0), (1, 1));
@@ -109,5 +110,14 @@ mod tests {
         assert_eq!(lookup.get(6), (3, 2));
         assert_eq!(lookup.get(7), (3, 3));
         assert_eq!(lookup.get(8), (3, 4));
+    }
+
+    #[test]
+    #[cfg(feature = "grapheme-clusters")]
+    fn emoji_text_by_grapheme_clusters() {
+        let text = "The 👨‍👩‍👦 emoji is made of 5 code points and 18 bytes in UTF-8.";
+        let lookup = LineColLookup::new(text);
+        assert_eq!(lookup.get(4), (1, 5));
+        assert_eq!(lookup.get(22), (1, 6));
     }
 }
