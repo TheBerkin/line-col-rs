@@ -27,10 +27,10 @@ assert_eq!(lookup.get(7), (2, 4)); // <end> (line 2, col 4)
 
 This crate offers two methods for calculating the column number.
 
-The default behavior is to count the number of code points from the start of the line (plus one).
+The `LineColLookup::get` method counts the number of bytes from the start of the line (plus one).
 However, this does not account for grapheme clusters (e.g. complex accented characters, emoji, etc.)
 If you would like to calculate the column based on the number of grapheme clusters instead, enable
-the `grapheme-clusters` feature.
+the `grapheme-clusters` feature and use `LineColLookup::get_by_cluster`.
 
 ## Changelog
 
