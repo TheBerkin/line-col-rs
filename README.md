@@ -34,6 +34,11 @@ the `grapheme-clusters` feature.
 
 ## Changelog
 
+### 0.2.0
+
+* Move cluster-specific `LineColLookup::get` implementation into its own method, `LineColLookup::get_by_cluster`
+* Remove unnecessary feature filters on some tests
+
 ### 0.1.1
 
 * Fixed documentation typos
