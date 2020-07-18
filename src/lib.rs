@@ -28,8 +28,7 @@ impl<'source> LineColLookup<'source> {
         }
     }
 
-    /// Looks up the 1-based line and column numbers of the specified char index.
-    /// If the `grapheme-clusters` feature is enabled, the column represents the nearest grapheme cluster rather than character.
+    /// Looks up the 1-based line and column numbers of the specified byte index.
     ///
     /// Returns a tuple with the line number first, then column number. 
     ///
@@ -60,7 +59,7 @@ impl<'source> LineColLookup<'source> {
         }
 
         // Perform a binary search to locate the line on which `index` resides
-        let mut line_range = 0 .. self.line_count;
+        let mut line_range = 0..self.line_count;
         while line_range.end - line_range.start > 1 {
             let range_middle = line_range.start + (line_range.end - line_range.start) / 2;
             let (left, right) = (line_range.start..range_middle, range_middle..line_range.end);
@@ -73,13 +72,46 @@ impl<'source> LineColLookup<'source> {
         }
 
         let line_start_index = self.line_heads[line_range.start];
-        let line = line_range.start + 1; 
-
-        #[cfg(feature = "grapheme-clusters")]
-        let col = UnicodeSegmentation::graphemes(&self.src[line_start_index..index], true).count() + 1;
-
-        #[cfg(not(feature = "grapheme-clusters"))]
+        let line = line_range.start + 1;
         let col = index - line_start_index + 1;
+
+        (line, col)
+    }
+
+    /// Looks up the 1-based line and column numbers of the specified byte index.
+    /// The column number correlates to the number of grapheme clusters up to and at the specified index.
+    ///
+    /// Returns a tuple with the line number first, then column number. 
+    ///
+    /// # Panics
+    ///
+    /// Panics if `index` is greater than the length of the input `&str`.
+    ///
+    /// # Notes
+    /// This function uses a binary search to locate the line on which `index` resides.
+    /// This means that it runs in approximately O(log n) time.
+    #[cfg(feature = "grapheme-clusters")]
+    pub fn get_by_cluster(&self, index: usize) -> (usize, usize) {
+        if index > self.src.len() {
+            panic!("Index cannot be greater than the length of the input slice.");
+        }
+
+        // Perform a binary search to locate the line on which `index` resides
+        let mut line_range = 0..self.line_count;
+        while line_range.end - line_range.start > 1 {
+            let range_middle = line_range.start + (line_range.end - line_range.start) / 2;
+            let (left, right) = (line_range.start..range_middle, range_middle..line_range.end);
+            // Check which line window contains our character index
+            if (self.line_heads[left.start] .. self.line_heads[left.end]).contains(&index) {
+                line_range = left;
+            } else {
+                line_range = right;
+            }
+        }
+
+        let line_start_index = self.line_heads[line_range.start];
+        let line = line_range.start + 1;
+        let col = UnicodeSegmentation::graphemes(&self.src[line_start_index..index], true).count() + 1;
 
         (line, col)
     }
@@ -117,8 +149,8 @@ mod tests {
     fn emoji_text_by_grapheme_clusters() {
         let text = "The 👨‍👩‍👦 emoji is made of 5 code points and 18 bytes in UTF-8.";
         let lookup = LineColLookup::new(text);
-        assert_eq!(lookup.get(4), (1, 5));
-        assert_eq!(lookup.get(22), (1, 6));
+        assert_eq!(lookup.get_by_cluster(4), (1, 5));
+        assert_eq!(lookup.get_by_cluster(22), (1, 6));
     }
 
     #[test]

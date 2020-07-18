@@ -3,6 +3,7 @@
 [![Crates.io version shield](https://img.shields.io/crates/v/line-col)](https://crates.io/crates/line-col)
 [![Docs.rs shield](https://docs.rs/line-col/badge.svg)](https://docs.rs/line-col)
 [![Crates.io license shield](https://img.shields.io/crates/l/line-col)](https://github.com/TheBerkin/line-col-rs/blob/master/LICENSE)
+![Crates.io downloads shield](https://img.shields.io/crates/d/line-col)
 
 A simple crate for calculating 1-based line/col numbers for a string slice.
 
