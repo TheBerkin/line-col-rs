@@ -129,7 +129,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "grapheme-clusters"))]
     fn line_col_iter_by_codepoints() {
         let text = "a\nab\nabc";
         let lookup = LineColLookup::new(text);
@@ -154,7 +153,6 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "grapheme-clusters"))]
     fn emoji_text_by_codepoints() {
         let text = "The 👨‍👩‍👦 emoji is made of 5 code points and 18 bytes in UTF-8.";
         let lookup = LineColLookup::new(text);
