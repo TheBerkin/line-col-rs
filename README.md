@@ -34,6 +34,10 @@ the `grapheme-clusters` feature and use `LineColLookup::get_by_cluster`.
 
 ## Changelog
 
+### 0.2.1
+
+* `LineColLookup` now defers line head table generation until first lookup
+
 ### 0.2.0
 
 * Move cluster-specific `LineColLookup::get` implementation into its own method, `LineColLookup::get_by_cluster`

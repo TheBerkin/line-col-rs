@@ -2,7 +2,7 @@
 name = "line-col"
 description = "Convert string slice indices into line/column numbers"
 repository = "https://github.com/TheBerkin/line-col-rs"
-version = "0.2.0"
+version = "0.2.1"
 readme = "README.md"
 keywords = ["str", "line", "column", "parsing", "lookup"]
 categories = ["algorithms", "caching"]

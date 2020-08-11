@@ -1,11 +1,11 @@
 #[cfg(feature = "grapheme-clusters")]
 use unicode_segmentation::UnicodeSegmentation;
+use std::{cell::{Ref, RefCell}};
 
 /// Pre-cached line/column lookup table for a string slice.
 pub struct LineColLookup<'source> {
     src: &'source str,
-    line_heads: Vec<usize>,
-    line_count: usize
+    line_heads: RefCell<Option<Vec<usize>>>,
 }
 
 impl<'source> LineColLookup<'source> {
@@ -13,19 +13,23 @@ impl<'source> LineColLookup<'source> {
     ///
     /// Internally, this scans `src` and caches the starting positions of all lines. This means this is an O(n) operation.
     pub fn new(src: &'source str) -> Self {
-        let line_heads: Vec<usize> = std::iter::once(0)
-            .chain(src
+        Self {
+            src,
+            line_heads: RefCell::new(None),
+        }
+    }
+
+    fn heads(&self) -> Ref<'_, Option<Vec<usize>>> {
+        if self.line_heads.borrow().is_none() {
+            let line_heads: Vec<usize> = std::iter::once(0)
+            .chain(self.src
                 .char_indices()
                 .filter_map(|(i, c)| Some(i + 1).filter(|_| c == '\n')))
             .collect();
-
-        let line_count = line_heads.len();
-
-        Self {
-            src,
-            line_heads,
-            line_count
+            self.line_heads.replace(Some(line_heads));
         }
+
+        self.line_heads.borrow()
     }
 
     /// Looks up the 1-based line and column numbers of the specified byte index.
@@ -58,24 +62,28 @@ impl<'source> LineColLookup<'source> {
             panic!("Index cannot be greater than the length of the input slice.");
         }
 
-        // Perform a binary search to locate the line on which `index` resides
-        let mut line_range = 0..self.line_count;
-        while line_range.end - line_range.start > 1 {
-            let range_middle = line_range.start + (line_range.end - line_range.start) / 2;
-            let (left, right) = (line_range.start..range_middle, range_middle..line_range.end);
-            // Check which line window contains our character index
-            if (self.line_heads[left.start] .. self.line_heads[left.end]).contains(&index) {
-                line_range = left;
-            } else {
-                line_range = right;
+        if let Some(heads) = self.heads().as_ref() {
+            // Perform a binary search to locate the line on which `index` resides
+            let mut line_range = 0..heads.len();
+            while line_range.end - line_range.start > 1 {
+                let range_middle = line_range.start + (line_range.end - line_range.start) / 2;
+                let (left, right) = (line_range.start..range_middle, range_middle..line_range.end);
+                // Check which line window contains our character index
+                if (heads[left.start] .. heads[left.end]).contains(&index) {
+                    line_range = left;
+                } else {
+                    line_range = right;
+                }
             }
+
+            let line_start_index = heads[line_range.start];
+            let line = line_range.start + 1;
+            let col = index - line_start_index + 1;
+
+            return (line, col)
         }
 
-        let line_start_index = self.line_heads[line_range.start];
-        let line = line_range.start + 1;
-        let col = index - line_start_index + 1;
-
-        (line, col)
+        unreachable!()
     }
 
     /// Looks up the 1-based line and column numbers of the specified byte index.
@@ -96,24 +104,28 @@ impl<'source> LineColLookup<'source> {
             panic!("Index cannot be greater than the length of the input slice.");
         }
 
-        // Perform a binary search to locate the line on which `index` resides
-        let mut line_range = 0..self.line_count;
-        while line_range.end - line_range.start > 1 {
-            let range_middle = line_range.start + (line_range.end - line_range.start) / 2;
-            let (left, right) = (line_range.start..range_middle, range_middle..line_range.end);
-            // Check which line window contains our character index
-            if (self.line_heads[left.start] .. self.line_heads[left.end]).contains(&index) {
-                line_range = left;
-            } else {
-                line_range = right;
+        if let Some(heads) = self.heads().as_ref() {
+            // Perform a binary search to locate the line on which `index` resides
+            let mut line_range = 0..heads.len();
+            while line_range.end - line_range.start > 1 {
+                let range_middle = line_range.start + (line_range.end - line_range.start) / 2;
+                let (left, right) = (line_range.start..range_middle, range_middle..line_range.end);
+                // Check which line window contains our character index
+                if (heads[left.start] .. heads[left.end]).contains(&index) {
+                    line_range = left;
+                } else {
+                    line_range = right;
+                }
             }
+
+            let line_start_index = heads[line_range.start];
+            let line = line_range.start + 1;
+            let col = UnicodeSegmentation::graphemes(&self.src[line_start_index..index], true).count() + 1;
+
+            return (line, col)
         }
 
-        let line_start_index = self.line_heads[line_range.start];
-        let line = line_range.start + 1;
-        let col = UnicodeSegmentation::graphemes(&self.src[line_start_index..index], true).count() + 1;
-
-        (line, col)
+        unreachable!()
     }
 }
 
